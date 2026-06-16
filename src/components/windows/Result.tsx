@@ -72,24 +72,37 @@ export const Result: React.FC = () => {
     };
   }, [previewUrl]);
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (!blobData) return;
-    
+
+    const timestamp = new Date().toISOString().slice(0, 19).replace(/[-T:]/g, '');
+    const filename = `zarinaecut_${timestamp}.png`;
+
+    // 모바일: Web Share API로 네이티브 공유 시트 호출
+    if (navigator.share && navigator.canShare) {
+      const file = new File([blobData], filename, { type: 'image/png' });
+      if (navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], title: '자리네컷' });
+          return;
+        } catch (e: any) {
+          if (e?.name === 'AbortError') return; // 사용자가 취소한 경우
+        }
+      }
+    }
+
+    // PC 폴백: 기존 앵커 다운로드
     try {
       const url = URL.createObjectURL(blobData);
       const link = document.createElement('a');
       link.href = url;
-      
-      const timestamp = new Date().toISOString().slice(0, 19).replace(/[-T:]/g, '');
-      link.download = `zarinaecut_${timestamp}.png`;
-      
+      link.download = filename;
       document.body.appendChild(link);
       link.click();
-      
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     } catch (e) {
-      alert('다운로드에 실패했습니다. 이미지를 길게 누르거나 우클릭하여 저장해 주세요.');
+      alert('이미지를 길게 눌러 저장해 주세요.');
     }
   };
 
