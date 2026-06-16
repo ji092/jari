@@ -1,0 +1,136 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'NeoDunggeunmo';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/NeoDunggeunmo.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'MS Sans Serif';
+  src: local('MS Sans Serif'), local('Microsoft Sans Serif'), sans-serif;
+}
+
+:root {
+  --background: #008080; /* Win98 desktop teal */
+  --foreground: #000000;
+  --win-bg: #c0c0c0;
+  --win-dark-shadow: #808080;
+  --win-light-shadow: #dfdfdf;
+  --win-blue-start: #000080;
+  --win-blue-end: #1084d0;
+  --win-yellow: #fffff0; /* Memo notepad yellow */
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: 'NeoDunggeunmo', 'MS Sans Serif', Arial, sans-serif;
+  image-rendering: pixelated;
+  overflow: hidden;
+  user-select: none;
+  font-size: 14px;
+}
+
+/* Scrollbar retro styling */
+::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+::-webkit-scrollbar-track {
+  background: #e6e6e6;
+  box-shadow: inset 1px 1px 0px #808080, inset -1px -1px 0px #fff;
+}
+::-webkit-scrollbar-thumb {
+  background: #c0c0c0;
+  border-top: 2px solid #fff;
+  border-left: 2px solid #fff;
+  border-bottom: 2px solid #808080;
+  border-right: 2px solid #808080;
+}
+::-webkit-scrollbar-thumb:active {
+  border-top: 2px solid #808080;
+  border-left: 2px solid #808080;
+  border-bottom: 2px solid #fff;
+  border-right: 2px solid #fff;
+}
+
+/* Win98 raised border (Button, Window frame) */
+.win-raised {
+  border-top: 2px solid #ffffff;
+  border-left: 2px solid #ffffff;
+  border-bottom: 2px solid #808080;
+  border-right: 2px solid #808080;
+  box-shadow: 1px 1px 0px 0px #000000;
+}
+
+/* Win98 sunken border (Inputs, Lists, Textarea, Canvas wrapper) */
+.win-sunken {
+  border-top: 2px solid #808080;
+  border-left: 2px solid #808080;
+  border-bottom: 2px solid #ffffff;
+  border-right: 2px solid #ffffff;
+  box-shadow: -1px -1px 0px 0px #000000;
+  background-color: #ffffff;
+}
+
+/* Win98 Titlebar background gradient */
+.win-titlebar {
+  background: linear-gradient(90deg, var(--win-blue-start) 0%, var(--win-blue-end) 100%);
+  color: #ffffff;
+}
+
+.win-titlebar-inactive {
+  background: linear-gradient(90deg, #808080 0%, #b5b5b5 100%);
+  color: #dfdfdf;
+}
+
+/* Animations */
+@keyframes marquee {
+  0% { transform: translate3d(100%, 0, 0); }
+  100% { transform: translate3d(-100%, 0, 0); }
+}
+
+.animate-marquee {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee 12s linear infinite;
+}
+
+@keyframes vbounce {
+  0% { height: 3px; }
+  100% { height: 18px; }
+}
+
+.visualizer-bar {
+  animation: vbounce 0.35s ease infinite alternate;
+}
+
+@keyframes flashEffect {
+  0% { opacity: 0; }
+  30% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.flash-overlay {
+  animation: flashEffect 0.2s ease-out forwards;
+}
+
+@keyframes flashThumb {
+  0% { filter: brightness(3.0); }
+  100% { filter: brightness(1.0); }
+}
+
+.animate-flash-thumb {
+  animation: flashThumb 0.4s ease-out;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.animate-blink {
+  animation: blink 1s step-end infinite;
+}
