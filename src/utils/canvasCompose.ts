@@ -138,16 +138,7 @@ export const canvasCompose = async ({
     console.log(`Note: No custom frame PNG overlay found for ${frameId}. Using default geometric rendering.`);
   }
 
-  // 8. Render Logo Text
-  if (config.logoArea) {
-    ctx.fillStyle = config.textColor;
-    ctx.font = 'bold 24px Arial, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(config.logoArea.text, width / 2, config.logoArea.y);
-  }
-
-  // 9. Convert Canvas to PNG Blob
+  // 8. Convert Canvas to PNG Blob
   return new Promise((resolve, reject) => {
     canvas.toBlob(
       (blob) => {
