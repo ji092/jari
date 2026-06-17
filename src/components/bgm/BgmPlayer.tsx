@@ -86,29 +86,37 @@ export const BgmPlayer: React.FC = () => {
     }
   };
 
-  // Minimized look for taskbar integration or floating tray
-  if (!isOpen) {
-    return (
-      <div 
-        style={{ zIndex: 9998 }}
-        onClick={toggleOpen}
-        className="fixed bottom-[38px] right-2 bg-[#c0c0c0] win-raised px-2 py-1 flex items-center gap-1.5 cursor-pointer text-xs select-none hover:bg-[#d5d5d5] text-black"
-      >
-        <span className="animate-blink">🎵</span>
-        <span className="font-bold">BGM</span>
-      </div>
-    );
-  }
-
   return (
-    <div
-      style={{ zIndex: 9998 }}
-      className="fixed bottom-[38px] right-2 w-[220px] bg-[#c0c0c0] win-raised flex flex-col font-sans select-none text-black text-xs"
-    >
+    <>
+      {/* Audio는 최소화 여부와 무관하게 항상 유지 */}
+      <audio
+        ref={audioRef}
+        onTimeUpdate={handleTimeUpdate}
+        onEnded={handleAudioEnded}
+      />
+
+      {/* 최소화 상태 */}
+      {!isOpen && (
+        <div
+          style={{ zIndex: 9998 }}
+          onClick={toggleOpen}
+          className="fixed bottom-[38px] right-2 bg-[#c0c0c0] win-raised px-2 py-1 flex items-center gap-1.5 cursor-pointer text-xs select-none hover:bg-[#d5d5d5] text-black"
+        >
+          <span className="animate-blink">🎵</span>
+          <span className="font-bold">BGM</span>
+        </div>
+      )}
+
+      {/* 전체 플레이어 */}
+      {isOpen && (
+      <div
+        style={{ zIndex: 9998 }}
+        className="fixed bottom-[38px] right-2 w-[220px] bg-[#c0c0c0] win-raised flex flex-col font-sans select-none text-black text-xs"
+      >
       {/* Title Bar */}
       <div className="win-titlebar p-1 flex items-center justify-between font-bold text-[11px]">
         <span className="flex items-center gap-1">📻 BGM 플레이어</span>
-        <button 
+        <button
           onClick={toggleOpen}
           className="w-3.5 h-3.5 bg-[#c0c0c0] win-raised text-black font-bold text-[9px] flex items-center justify-center border border-black active:border-t active:border-l active:border-[#808080] active:border-b-0 active:border-r-0"
         >
@@ -125,7 +133,7 @@ export const BgmPlayer: React.FC = () => {
             return (
               <div
                 key={i}
-                style={{ 
+                style={{
                   animationDelay: `${delay}s`,
                   animationPlayState: isPlaying ? 'running' : 'paused',
                   height: isPlaying ? undefined : '3px'
@@ -143,13 +151,6 @@ export const BgmPlayer: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* Audio Element */}
-      <audio
-        ref={audioRef}
-        onTimeUpdate={handleTimeUpdate}
-        onEnded={handleAudioEnded}
-      />
 
       {/* Progress Bar slider */}
       <div className="px-2 py-1">
@@ -202,5 +203,7 @@ export const BgmPlayer: React.FC = () => {
         })}
       </div>
     </div>
+      )}
+    </>
   );
 };
