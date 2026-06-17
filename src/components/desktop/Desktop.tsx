@@ -42,42 +42,42 @@ export const Desktop: React.FC = () => {
           
           {/* Guestbook Write Window */}
           {openWindows.includes('write') && (
-            <Win98Window id="write" title="✍️ 응원 방명록 작성" icon="✍️" width="450px">
+            <Win98Window id="write" title="응원 방명록 작성" icon="✍️" width="450px">
               <GuestbookWrite />
             </Win98Window>
           )}
 
           {/* Guestbook List Window */}
           {openWindows.includes('guestbook') && (
-            <Win98Window id="guestbook" title="📄 방명록.txt - 자리네컷 메모장" icon="📄" width="480px">
+            <Win98Window id="guestbook" title="방명록.txt - 자리네컷 메모장" icon="📄" width="480px">
               <GuestbookList />
             </Win98Window>
           )}
 
           {/* Frame Select Window */}
           {openWindows.includes('frame') && (
-            <Win98Window id="frame" title="🎞️ 인생컷 프레임 디자인 선택" icon="🎞️" width="460px">
+            <Win98Window id="frame" title="인생컷 프레임 디자인 선택" icon="🎞️" width="460px">
               <FrameSelect />
             </Win98Window>
           )}
 
           {/* Camera Capture Window */}
           {openWindows.includes('camera') && (
-            <Win98Window id="camera" title="📷 찰칵! 8장 촬영 부스" icon="📷" width="680px">
+            <Win98Window id="camera" title="찰칵! 8장 촬영 부스" icon="📷" width="680px">
               <Camera />
             </Win98Window>
           )}
 
           {/* Photo Order Select Window */}
           {openWindows.includes('select') && (
-            <Win98Window id="select" title="✅ 인화할 4장 선택 및 배치" icon="✅" width="600px">
+            <Win98Window id="select" title="인화할 4장 선택 및 배치" icon="✅" width="600px">
               <PhotoSelect />
             </Win98Window>
           )}
 
           {/* Result Composite Window */}
           {openWindows.includes('result') && (
-            <Win98Window id="result" title="🎨 필터 적용 및 기기 저장" icon="🎨" width="580px">
+            <Win98Window id="result" title="필터 적용 및 기기 저장" icon="🎨" width="580px">
               <Result />
             </Win98Window>
           )}
