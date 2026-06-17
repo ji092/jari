@@ -22,6 +22,9 @@ export const Result: React.FC = () => {
   const [error, setError] = useState(false);
   const [blobData, setBlobData] = useState<Blob | null>(null);
 
+  const isKakaoTalk = typeof navigator !== 'undefined' &&
+    /KAKAOTALK|kakaotalk/i.test(navigator.userAgent);
+
   // Compile photos ordered by user selections
   const orderedPhotos = selectedOrder.map((idx) => capturedPhotos[idx]);
 
@@ -143,17 +146,21 @@ export const Result: React.FC = () => {
           ) : error ? (
             <div className="text-red-300 font-bold">⚠️ 이미지 렌더링 중 오류가 발생했습니다.</div>
           ) : (
-            <div className="flex items-center justify-center max-w-full overflow-hidden">
-              {/* Responsive size limits matching actual ratios */}
+            <div className="flex flex-col items-center justify-center max-w-full overflow-hidden gap-2">
               <img
                 src={previewUrl}
                 alt="Zarinaecut composite preview"
                 className={`win-raised border border-white max-h-[480px] sm:max-h-[500px] object-contain ${
-                  selectedLayout === '2x2' 
-                    ? 'w-full max-w-[320px]' 
+                  selectedLayout === '2x2'
+                    ? 'w-full max-w-[320px]'
                     : 'w-[150px] sm:w-[170px]'
                 }`}
               />
+              {isKakaoTalk && (
+                <p className="text-white text-[11px] font-bold text-center bg-black/50 px-3 py-1.5 rounded">
+                  📌 이미지를 길게 눌러 저장하세요
+                </p>
+              )}
             </div>
           )}
         </div>
@@ -191,14 +198,22 @@ export const Result: React.FC = () => {
 
           {/* Action Operations */}
           <div className="flex flex-col gap-2 mt-auto pt-4 md:pt-0">
-            <Win98Button
-              onClick={handleDownload}
-              variant="primary"
-              disabled={isGenerating || error || !blobData}
-              className="py-2.5 w-full text-xs font-bold"
-            >
-              💾 기기에 저장하기
-            </Win98Button>
+            {isKakaoTalk ? (
+              <div className="py-2 px-3 text-[11px] text-center bg-[#fffff0] border border-dotted border-gray-400 leading-relaxed text-gray-700">
+                📌 카카오톡에서는<br />
+                <strong>위 이미지를 길게 눌러</strong><br />
+                저장해 주세요
+              </div>
+            ) : (
+              <Win98Button
+                onClick={handleDownload}
+                variant="primary"
+                disabled={isGenerating || error || !blobData}
+                className="py-2.5 w-full text-xs font-bold"
+              >
+                💾 기기에 저장하기
+              </Win98Button>
+            )}
             
             <Win98Button onClick={handleRestart} disabled={isGenerating} className="py-2.5 w-full text-xs">
               🔄 처음부터 다시 찍기
