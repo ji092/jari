@@ -81,8 +81,10 @@ export const Result: React.FC = () => {
     const timestamp = new Date().toISOString().slice(0, 19).replace(/[-T:]/g, '');
     const filename = `zarinaecut_${timestamp}.png`;
 
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
     // 모바일: Web Share API로 네이티브 공유 시트 호출
-    if (navigator.share && navigator.canShare) {
+    if (isMobile && navigator.share && navigator.canShare) {
       const file = new File([blobData], filename, { type: 'image/png' });
       if (navigator.canShare({ files: [file] })) {
         try {
