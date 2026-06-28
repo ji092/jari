@@ -2,6 +2,9 @@ import { useState, useCallback, useRef } from 'react';
 
 type FacingMode = 'user' | 'environment';
 
+// 인생네컷 특유의 화사하고 뽀샤시한 보정 필터 (라이브 프리뷰 & 캡처 동일 적용)
+export const BEAUTY_FILTER = 'brightness(1.08) contrast(0.95) saturate(1.15) blur(0.4px)';
+
 export const useCamera = () => {
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [isReady, setIsReady] = useState(false);
@@ -87,6 +90,8 @@ export const useCamera = () => {
       ctx.translate(canvas.width, 0);
       ctx.scale(-1, 1);
     }
+    // 라이브 프리뷰와 동일한 화사 보정을 캡처본에도 동일하게 베이크
+    ctx.filter = BEAUTY_FILTER;
     ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
 
     // Output high quality JPEG data URL

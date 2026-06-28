@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useFlowStore } from '../../store/flowStore';
-import { useCamera } from '../../hooks/useCamera';
+import { useCamera, BEAUTY_FILTER } from '../../hooks/useCamera';
 import { Win98Button } from '../ui/Win98Button';
 
 export const Camera: React.FC = () => {
@@ -148,6 +148,7 @@ export const Camera: React.FC = () => {
                 autoPlay
                 playsInline
                 muted
+                style={{ filter: BEAUTY_FILTER }}
                 className={`w-full h-full object-cover transform ${
                   facingMode === 'user' ? 'scale-x-[-1]' : ''
                 }`}
