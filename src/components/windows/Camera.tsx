@@ -5,7 +5,7 @@ import { Win98Button } from '../ui/Win98Button';
 
 export const Camera: React.FC = () => {
   const { capturedPhotos, addPhoto, resetPhotos, closeWindow, openWindow } = useFlowStore();
-  const { isReady, error, startCamera, stopCamera, takeSnapshot } = useCamera();
+  const { isReady, error, facingMode, startCamera, stopCamera, switchCamera, takeSnapshot } = useCamera();
 
   const videoRef = useRef<HTMLVideoElement>(null);
   
@@ -148,7 +148,9 @@ export const Camera: React.FC = () => {
                 autoPlay
                 playsInline
                 muted
-                className="w-full h-full object-cover transform scale-x-[-1]"
+                className={`w-full h-full object-cover transform ${
+                  facingMode === 'user' ? 'scale-x-[-1]' : ''
+                }`}
               />
 
               {/* Countdown overlays */}
@@ -164,6 +166,16 @@ export const Camera: React.FC = () => {
               {isFlashing && (
                 <div className="absolute inset-0 bg-white flash-overlay pointer-events-none" />
               )}
+
+              {/* 전면/후면 전환 (모바일 전용) */}
+              <button
+                onClick={switchCamera}
+                disabled={isShooting}
+                className="md:hidden absolute top-2 right-2 w-8 h-8 bg-black/50 text-white rounded-full flex items-center justify-center text-base active:scale-90 disabled:opacity-40"
+                aria-label="카메라 전환"
+              >
+                🔄
+              </button>
             </>
           )}
         </div>

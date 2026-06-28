@@ -1,14 +1,20 @@
 import { useState, useCallback, useRef } from 'react';
 
+type FacingMode = 'user' | 'environment';
+
 export const useCamera = () => {
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [facingMode, setFacingMode] = useState<FacingMode>('user');
   const activeStreamRef = useRef<MediaStream | null>(null);
+  const videoElementRef = useRef<HTMLVideoElement | null>(null);
 
-  const startCamera = useCallback(async (videoElement: HTMLVideoElement | null) => {
+  const startCamera = useCallback(async (videoElement: HTMLVideoElement | null, mode: FacingMode = 'user') => {
     if (!videoElement) return;
-    
+
+    videoElementRef.current = videoElement;
+
     // Stop any existing streams first
     if (activeStreamRef.current) {
       activeStreamRef.current.getTracks().forEach((track) => track.stop());
@@ -19,7 +25,7 @@ export const useCamera = () => {
 
     const constraints: MediaStreamConstraints = {
       video: {
-        facingMode: 'user', // Default to front camera
+        facingMode: mode,
         width: { ideal: 1280 },
         height: { ideal: 720 },
       },
@@ -30,7 +36,8 @@ export const useCamera = () => {
       const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
       activeStreamRef.current = mediaStream;
       setStream(mediaStream);
-      
+      setFacingMode(mode);
+
       videoElement.srcObject = mediaStream;
       videoElement.onloadedmetadata = () => {
         videoElement.play().catch((e) => {
@@ -49,6 +56,11 @@ export const useCamera = () => {
       }
     }
   }, []);
+
+  const switchCamera = useCallback(async () => {
+    const nextMode: FacingMode = facingMode === 'user' ? 'environment' : 'user';
+    await startCamera(videoElementRef.current, nextMode);
+  }, [facingMode, startCamera]);
 
   const stopCamera = useCallback(() => {
     if (activeStreamRef.current) {
@@ -70,22 +82,25 @@ export const useCamera = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return '';
 
-    // Draw the current video frame onto the canvas
-    // Flip horizontally to match mirror preview UX
-    ctx.translate(canvas.width, 0);
-    ctx.scale(-1, 1);
+    // 전면 카메라만 미러링 (후면은 실제 보이는 그대로)
+    if (facingMode === 'user') {
+      ctx.translate(canvas.width, 0);
+      ctx.scale(-1, 1);
+    }
     ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
 
     // Output high quality JPEG data URL
     return canvas.toDataURL('image/jpeg', 0.92);
-  }, [isReady]);
+  }, [isReady, facingMode]);
 
   return {
     stream,
     isReady,
     error,
+    facingMode,
     startCamera,
     stopCamera,
+    switchCamera,
     takeSnapshot,
   };
 };
