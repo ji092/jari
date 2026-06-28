@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎞️ 자리네컷
 
-## Getting Started
+> 방명록을 쓰면 입장할 수 있는 브라우저 기반 포토부스 서비스
 
-First, run the development server:
+🔗 **[https://jari-alpha.vercel.app](https://jari-alpha.vercel.app)**
+
+---
+
+## 소개
+
+**자리네컷**은 인생네컷에서 영감을 받아 만든 웹 포토부스입니다.  
+로그인도 결제도 없이, 방명록 한 줄만 남기면 사진을 찍을 수 있어요.  
+촬영된 사진은 서버에 저장되지 않으며, 모든 이미지 처리는 브라우저에서 이루어집니다.
+
+---
+
+## 주요 기능
+
+- 📝 **방명록 입장권** — 방명록 작성 후 포토부스 이용 가능
+- 📷 **8컷 촬영** — 카운트다운 + 셔터음 + 플래시 효과
+- 🖼️ **프레임 선택** — 2×2 / 1×4 세로 레이아웃
+- ✨ **필터 적용** — 원본 / 흑백 / 뽀샤시
+- 💾 **PNG 다운로드** — 완성된 사진을 바로 저장
+- 🎵 **BGM 플레이어** — 화면 전환에도 끊기지 않는 음악
+
+---
+
+## 시작하기
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+브라우저에서 [http://localhost:3000](http://localhost:3000) 을 열면 됩니다.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 기술 스택
 
-## Learn More
+| 구분 | 기술 |
+|------|------|
+| 프레임워크 | Next.js (App Router), TypeScript |
+| 스타일 | Tailwind CSS |
+| 상태 관리 | Zustand |
+| 이미지 처리 | Canvas API (클라이언트 사이드) |
+| 오디오 | Web Audio API |
+| 데이터베이스 | Supabase / TiDB |
+| 배포 | Vercel |
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 개발 서버 실행
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run dev      # npm
+yarn dev         # yarn
+pnpm dev         # pnpm
+bun dev          # bun
+```
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 배포
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+[Vercel](https://vercel.com) 을 통해 배포합니다.  
+main 브랜치에 푸시하면 자동으로 배포됩니다.
