@@ -1,12 +1,24 @@
 import { NextResponse } from 'next/server';
+import { randomUUID } from 'crypto';
+import mysql from 'mysql2/promise';
 import { getPool } from '../../../lib/db';
 import { GuestbookEntry } from '../../../types';
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const page  = Math.max(1, Number(searchParams.get('page')  ?? 1));
-    const limit = Math.min(50, Math.max(1, Number(searchParams.get('limit') ?? 20)));
+    const rawPage  = Number(searchParams.get('page')  ?? 1);
+    const rawLimit = Number(searchParams.get('limit') ?? 20);
+
+    if (!Number.isInteger(rawPage) || !Number.isInteger(rawLimit)) {
+      return NextResponse.json(
+        { error: 'page와 limit은 정수여야 합니다' },
+        { status: 400 }
+      );
+    }
+
+    const page  = Math.max(1, rawPage);
+    const limit = Math.min(50, Math.max(1, rawLimit));
     const offset = (page - 1) * limit;
 
     const pool = getPool();
@@ -41,8 +53,16 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { message } = body;
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { error: '잘못된 요청 형식입니다' },
+        { status: 400 }
+      );
+    }
+    const { message } = body as { message?: unknown };
 
     // ── Validation ────────────────────────────────────────────────────────────
     if (
@@ -77,19 +97,19 @@ export async function POST(request: Request) {
     const pool = getPool();
 
     // ── Insert ──────────────────────────────────────────────────────────────────
+    const newId = randomUUID();
     await pool.execute<mysql.ResultSetHeader>(
-      `INSERT INTO guestbook (nickname, message, ip_hash)
-       VALUES ('익명의 방문자', ?, ?)`,
-      [sanitized, ipHash || null]
+      `INSERT INTO guestbook (id, nickname, message, ip_hash)
+       VALUES (?, '익명의 방문자', ?, ?)`,
+      [newId, sanitized, ipHash || null]
     );
 
-    // Fetch the inserted row to return consistent shape
+    // Fetch the inserted row by its exact id (avoids race with concurrent inserts)
     const [[inserted]] = await pool.execute<mysql.RowDataPacket[]>(
       `SELECT id, nickname, message,
               DATE_FORMAT(created_at, '%Y-%m-%dT%T.000Z') AS createdAt
-       FROM guestbook
-       WHERE id = (SELECT id FROM guestbook ORDER BY created_at DESC LIMIT 1)
-       LIMIT 1`
+       FROM guestbook WHERE id = ?`,
+      [newId]
     );
 
     return NextResponse.json(inserted as GuestbookEntry, { status: 201 });
@@ -102,5 +122,3 @@ export async function POST(request: Request) {
   }
 }
 
-// mysql2 types — re-export for convenience
-import mysql from 'mysql2/promise';

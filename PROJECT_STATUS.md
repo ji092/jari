@@ -22,10 +22,10 @@ graph TD
 ```
 
 ### 2. 기술 스택 (Tech Stack)
-*   **Frontend**: Next.js 14+ (App Router), TypeScript, Tailwind CSS
+*   **Frontend**: Next.js 16 (App Router, Turbopack), TypeScript, Tailwind CSS
 *   **State Management**: Zustand (화면 흐름 및 BGM 전역 상태 제어)
 *   **APIs**: Next.js API Routes (`/api/guestbook`)
-*   **Database**: PostgreSQL (Supabase) - 방명록 텍스트 데이터만 저장 (사진 저장 안 함)
+*   **Database**: TiDB Cloud (MySQL 호환, `mysql2` 드라이버) - 방명록 텍스트 데이터만 저장 (사진 저장 안 함) ※ 초기 설계는 PostgreSQL(Supabase)였으나 2026-06-16 TiDB로 교체
 *   **Web APIs**:
     *   `MediaDevices.getUserMedia()`: 카메라 웹캠 연동
     *   `HTML5 Canvas API`: 클라이언트 사이드 이미지 합성 및 필터
@@ -34,43 +34,49 @@ graph TD
 
 ### 3. 디렉토리 구조 (Folder Structure)
 ```text
-zarinaecut/
-├── app/
-│   ├── layout.tsx              # 루트 레이아웃 (BGM 및 전역 컨텍스트)
-│   ├── page.tsx                # 바탕화면 진입점 (단일 페이지 내 창 레이어링)
-│   └── api/
-│       └── guestbook/
-│           └── route.ts        # GET/POST 방명록 API
-├── components/
-│   ├── desktop/
-│   │   ├── Desktop.tsx         # 바탕화면 컨테이너 (청록색 배경)
-│   │   ├── DesktopIcon.tsx     # 더블클릭 실행 가능한 바탕화면 아이콘
-│   │   ├── Taskbar.tsx         # 하단 태스크바 (시작 버튼, 시계, 창 탭)
-│   │   └── StartMenu.tsx       # 시작 메뉴 팝업
-│   ├── windows/
-│   │   ├── Win98Window.tsx     # 윈도우98 스타일 공통 창 래퍼 (드래그 가능)
-│   │   ├── GuestbookList.tsx   # 방명록 목록 창
-│   │   ├── GuestbookWrite.tsx  # 방명록 작성 창
-│   │   ├── FrameSelect.tsx     # 프레임 선택 창
-│   │   ├── Camera.tsx          # 촬영 창 (카메라 뷰 + 카운트다운)
-│   │   ├── PhotoSelect.tsx     # 사진 4장 선택 창
-│   │   └── Result.tsx          # 필터 선택 + 완성본 미리보기 + 저장
-│   ├── bgm/
-│   │   └── BgmPlayer.tsx       # 우측 하단 고정 BGM 플레이어
-│   └── ui/
-│       └── Win98Button.tsx     # 레트로 윈도우 버튼
-├── hooks/
-│   ├── useCamera.ts            # 카메라 스트림 및 촬영 제어 훅
-│   └── useBgm.ts               # BGM 재생 및 싱크 훅
-├── store/
-│   ├── bgmStore.ts             # BGM 상태 관리 (재생, 트랙, 볼륨 등)
-│   └── flowStore.ts            # 화면 단계 및 창 오픈 상태 관리
-├── utils/
-│   ├── canvasCompose.ts        # Canvas 이미지 합성 엔진
-│   └── filters.ts              # 흑백 및 뽀샤시 이미지 필터
+jari/
+├── src/
+│   ├── app/
+│   │   ├── layout.tsx              # 루트 레이아웃 (BGM 및 전역 컨텍스트)
+│   │   ├── page.tsx                # 바탕화면 진입점 (단일 페이지 내 창 레이어링)
+│   │   ├── globals.css             # 전역 스타일 (윈도우98 커스텀 클래스 포함)
+│   │   └── api/
+│   │       └── guestbook/
+│   │           └── route.ts        # GET/POST 방명록 API (TiDB 연동)
+│   ├── components/
+│   │   ├── desktop/
+│   │   │   ├── Desktop.tsx         # 바탕화면 컨테이너 (청록색 배경)
+│   │   │   ├── DesktopIcon.tsx     # 더블클릭 실행 가능한 바탕화면 아이콘
+│   │   │   ├── Taskbar.tsx         # 하단 태스크바 (시작 버튼, 시계, 창 탭)
+│   │   │   └── StartMenu.tsx       # 시작 메뉴 팝업
+│   │   ├── windows/
+│   │   │   ├── Win98Window.tsx     # 윈도우98 스타일 공통 창 래퍼 (드래그 가능)
+│   │   │   ├── GuestbookList.tsx   # 방명록 목록 창
+│   │   │   ├── GuestbookWrite.tsx  # 방명록 작성 창
+│   │   │   ├── FrameSelect.tsx     # 프레임 선택 창
+│   │   │   ├── Camera.tsx          # 촬영 창 (카메라 뷰 + 카운트다운)
+│   │   │   ├── PhotoSelect.tsx     # 사진 4장 선택 창
+│   │   │   └── Result.tsx          # 필터 선택 + 완성본 미리보기 + 저장
+│   │   ├── bgm/
+│   │   │   └── BgmPlayer.tsx       # 우측 하단 고정 BGM 플레이어
+│   │   └── ui/
+│   │       └── Win98Button.tsx     # 레트로 윈도우 버튼
+│   ├── constants/
+│   │   └── frames.ts               # 프레임 목록 및 슬롯 좌표 설정
+│   ├── hooks/
+│   │   └── useCamera.ts            # 카메라 스트림 및 촬영 제어 훅 (BGM은 bgmStore에서 직접 관리)
+│   ├── lib/
+│   │   └── db.ts                   # TiDB(mysql2) 커넥션 풀 싱글턴
+│   ├── store/
+│   │   ├── bgmStore.ts             # BGM 상태 관리 (재생, 트랙, 진행률 등)
+│   │   └── flowStore.ts            # 화면 단계 및 창 오픈 상태 관리
+│   ├── types/
+│   │   └── index.ts                # 공통 타입 정의
+│   └── utils/
+│       └── canvasCompose.ts        # Canvas 이미지 합성 엔진 (필터 로직 포함)
 └── public/
-    ├── bgm/                    # 6곡의 레트로 BGM mp3 파일
-    └── frames/                 # 프레임 디자인 리소스 (PNG, JSON 좌표)
+    ├── bgm/                        # 6곡의 레트로 BGM mp3 파일
+    └── frames/                     # 프레임별 PNG (frame_2x2.png / frame_1x4.png, 6종)
 ```
 
 ---
@@ -113,6 +119,56 @@ zarinaecut/
 | 2026-06-16 | 빌드 및 품질 검증 | npm run build를 통한 TypeScript 및 Next.js 빌드 성공 확인 | **[완료]** |
 | 2026-06-16 | 바탕화면 포인터 이벤트 버그 수정 | 윈도우 창 영역의 포인터 락 문제 해결 (바탕화면 아이콘 더블클릭 오작동 버그 픽스) | **[완료]** |
 | 2026-06-16 | TiDB 연동 | `mysql2` 드라이버 설치, `src/lib/db.ts` 커넥션 풀 생성, `/api/guestbook` route를 인메모리 → 실제 TiDB 쿼리로 교체, DB명 `zari` / 닉네임 `익명의 방문자` 반영 | **[완료]** |
+| 2026-07-07 | 전체 코드 리뷰 (버그 탐색) | 치명 5건 / 중간 3건 / 개선 5건 / 보류 4건 식별 — 상세는 아래 "코드 리뷰 결과" 섹션 참고 | **[완료]** |
+| 2026-07-07 | 치명 버그 5건 수정 | Camera interval 누수, AudioContext 누수, Result 영구 스피너, BGM 자동재생 중단, 방명록 INSERT 동시성 경쟁 | **[완료]** |
+| 2026-07-08 | 중간 버그 3건 + 개선 5건 수정 | API 4xx 검증 강화, Safari 검은 프레임 방지, 창 닫힘 후 화면 전환 방지, BGM 진행바, resetAll 창 초기화, revokeObjectURL 중복, DB 환경변수 검증 | **[완료]** |
+| 2026-07-08 | 빌드 검증 | `npm run build` (Next.js 16.2.9 + TypeScript 검사) 통과 확인 | **[완료]** |
+| 2026-07-08 | 문서 현행화 | 기술 스택의 DB 표기를 PostgreSQL(Supabase) → **TiDB Cloud(mysql2)** 로 교체 기록 반영, Next.js 버전 표기 갱신(14+ → 16), 디렉토리 구조를 실제 `src/` 구조에 맞게 수정 (`lib/db.ts`·`constants/frames.ts` 추가, 미존재 `filters.ts`·`useBgm.ts` 제거) | **[완료]** |
+
+---
+
+## 🔍 코드 리뷰 결과 (2026-07-07 ~ 07-08)
+
+### ✅ 해결 완료
+
+**치명 (5건) — 2026-07-07 수정**
+
+| # | 위치 | 문제 | 조치 |
+| :---: | :--- | :--- | :--- |
+| 1 | `Camera.tsx` | 카운트다운 `setInterval`이 언마운트 시 미정리 → 언마운트 후 `addPhoto` 호출로 다음 세션 사진 목록 오염 | `mountedRef` + `intervalRef` 도입, 언마운트 시 interval 정리 및 스토어 호출 차단 |
+| 2 | `Camera.tsx` | 촬영마다 `new AudioContext()` 생성 후 미해제 → Chrome 한도(~6개) 초과 시 셔터음 무음 | 단일 AudioContext 재사용 (`audioCtxRef`), 언마운트 시 `close()` |
+| 3 | `Result.tsx` | `isGenerating` 초기값 `true` + guard early-return에서 해제 누락 → 영구 로딩 스피너 | 초기값 `false`로 변경, guard 경로에 `setIsGenerating(false)` 추가 |
+| 4 | `BgmPlayer.tsx` | 트랙 자동 전환 시 두 effect의 실행 순서 문제로 이전 src에 `play()` → 거부 → `pause()` → 자동재생 영구 중단 | play/pause 동기화 effect의 deps에서 `trackIndex` 제거 |
+| 5 | `route.ts` | INSERT 후 `ORDER BY created_at DESC LIMIT 1` 재조회 → 동시 요청 시 타인의 행 반환 | `randomUUID()`로 id 선발급 후 해당 id로 INSERT/SELECT. 하단의 `import mysql`도 최상단으로 이동 |
+
+**중간 (3건) — 2026-07-08 수정**
+
+| # | 위치 | 문제 | 조치 |
+| :---: | :--- | :--- | :--- |
+| 6 | `route.ts` GET | `?page=abc` → NaN이 `LIMIT NaN`으로 SQL에 전달돼 500 | 비정수 파라미터는 400 응답으로 사전 차단 |
+| 7 | `useCamera.ts` | `setIsReady(true)`가 `video.play()` 완료 전에 실행 → Safari 자동재생 거부 시 검은 프레임 캡처 | `play().then()` 성공 후에만 `isReady` 설정, 실패 시 안내 메시지 |
+| 8 | `GuestbookWrite.tsx` | 전송 중 창을 닫아도 POST 완료 시 `openWindow('frame')` 강제 실행 | `mountedRef` 가드로 언마운트 후 화면 전환/상태 갱신 차단 |
+
+**개선 (5건) — 2026-07-08 수정**
+
+| # | 위치 | 문제 | 조치 |
+| :---: | :--- | :--- | :--- |
+| 9 | `BgmPlayer.tsx` | `if (dur && cur)`에서 `cur=0`이 falsy → 트랙 시작 시 진행바가 이전 값에 고정 | `!isNaN(cur)` 조건으로 교체 + 트랙 변경 시 `setProgress(0)` |
+| 10 | `flowStore.ts` | `resetAll()`이 `openWindows`/`activeWindow` 미초기화 → 재시작 후 열린 창 잔류 | 창 상태도 함께 초기화 |
+| 11 | `Result.tsx` | `revokeObjectURL`이 두 경로에서 중복 호출 | setter 내 인라인 revoke 제거, `[previewUrl]` cleanup effect가 단독 담당 |
+| 12 | `route.ts` POST | 잘못된 JSON body → `request.json()` 예외 → 500 | try/catch로 400 응답 |
+| 13 | `db.ts` | 환경변수 누락 시 pool 생성은 성공하고 첫 쿼리에서 난해한 연결 에러 | `TIDB_HOST/USER/PASSWORD` 누락 시 명확한 메시지로 즉시 throw |
+
+**파생 수정 (1건)**: `Result.tsx`의 "처음부터 다시 찍기"가 카메라 창 대신 **프레임 선택 창**을 열도록 변경 — `resetAll()`이 배열/프레임 선택을 지우므로 카메라로 직행하면 마지막 합성 단계에서 실패하기 때문.
+
+### ⏳ 남은 항목 (의도된 설계로 보류 — 필요 시 개선)
+
+| 위치 | 내용 | 권장 방향 |
+| :--- | :--- | :--- |
+| `route.ts` (IP 해시) | 단순 XOR 해시라 충돌이 많아 어뷰징 방지 실효성 낮음 (주석상 의도된 선택) | `crypto.createHash('sha256')` 교체 |
+| `route.ts` (sanitize) | HTML 이스케이프를 **저장 시점**에 적용 → JSON 응답에 `&amp;` 노출, React 렌더 시 이중 이스케이프 가능 | 원문 저장 + 렌더 시점 이스케이프로 전환 |
+| `bgmStore.ts` | `isOpen: true` — BGM 플레이어가 첫 방문 시 항상 펼쳐진 상태 | UX 의도에 따라 결정 (기획 확인) |
+| `route.ts` GET (LIMIT) | limit/offset이 문자열 보간으로 SQL에 삽입 — 현재는 정수 검증으로 안전하나 구조상 placeholder가 정석 | mysql2의 LIMIT placeholder 제약 확인 후 교체 |
 
 ---
 

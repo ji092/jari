@@ -18,7 +18,7 @@ export const Result: React.FC = () => {
   } = useFlowStore();
 
   const [previewUrl, setPreviewUrl] = useState<string>('');
-  const [isGenerating, setIsGenerating] = useState(true);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState(false);
   const [blobData, setBlobData] = useState<Blob | null>(null);
 
@@ -32,7 +32,10 @@ export const Result: React.FC = () => {
     let active = true;
     
     const composeImage = async () => {
-      if (!selectedLayout || !selectedFrameId || orderedPhotos.length !== 4) return;
+      if (!selectedLayout || !selectedFrameId || orderedPhotos.length !== 4) {
+        setIsGenerating(false);
+        return;
+      }
       
       setIsGenerating(true);
       setError(false);
@@ -48,11 +51,8 @@ export const Result: React.FC = () => {
         if (!active) return;
         setBlobData(blob);
 
-        const url = URL.createObjectURL(blob);
-        setPreviewUrl((prev) => {
-          if (prev) URL.revokeObjectURL(prev); // clean up memory leaks
-          return url;
-        });
+        // 이전 URL 해제는 아래 [previewUrl] cleanup effect가 단독으로 담당
+        setPreviewUrl(URL.createObjectURL(blob));
       } catch (err) {
         console.error(err);
         if (active) setError(true);
@@ -114,8 +114,8 @@ export const Result: React.FC = () => {
   const handleRestart = () => {
     if (confirm('만들어진 사진을 저장하셨나요? 처음 단계로 돌아갑니다.')) {
       resetAll();
-      closeWindow('result');
-      openWindow('camera');
+      // resetAll이 배열/프레임 선택까지 지우므로 카메라가 아닌 프레임 선택부터 다시 시작
+      openWindow('frame');
     }
   };
 

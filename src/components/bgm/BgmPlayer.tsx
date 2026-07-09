@@ -42,7 +42,7 @@ export const BgmPlayer: React.FC = () => {
     } else {
       audioRef.current.pause();
     }
-  }, [isPlaying, trackIndex, pause]);
+  }, [isPlaying, pause]);
 
   // Sync track file source
   useEffect(() => {
@@ -51,6 +51,7 @@ export const BgmPlayer: React.FC = () => {
     // Set source to local asset
     audioRef.current.src = `/bgm/${currentTrack.file}`;
     audioRef.current.load();
+    setProgress(0); // 트랙이 바뀌면 진행바를 즉시 초기화
     
     if (isPlaying) {
       audioRef.current.play().catch((e) => {
@@ -63,7 +64,7 @@ export const BgmPlayer: React.FC = () => {
     if (!audioRef.current) return;
     const dur = audioRef.current.duration;
     const cur = audioRef.current.currentTime;
-    if (dur && cur) {
+    if (dur && !isNaN(cur)) {
       setProgress((cur / dur) * 100);
     }
   };

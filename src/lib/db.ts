@@ -5,6 +5,12 @@ let pool: mysql.Pool | null = null;
 
 export function getPool(): mysql.Pool {
   if (!pool) {
+    const missing = ['TIDB_HOST', 'TIDB_USER', 'TIDB_PASSWORD'].filter(
+      (key) => !process.env[key]
+    );
+    if (missing.length > 0) {
+      throw new Error(`DB 환경변수가 설정되지 않았습니다: ${missing.join(', ')} (.env.local 확인)`);
+    }
     pool = mysql.createPool({
       host:     process.env.TIDB_HOST,
       port:     Number(process.env.TIDB_PORT ?? 4000),

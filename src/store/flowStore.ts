@@ -84,6 +84,8 @@ export const useFlowStore = create<FlowState>((set) => ({
 
   resetAll: () =>
     set({
+      openWindows: [],
+      activeWindow: null,
       selectedLayout: null,
       selectedFrameId: null,
       capturedPhotos: [],

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useFlowStore } from '../../store/flowStore';
 import { Win98Button } from '../ui/Win98Button';
 
@@ -7,6 +7,14 @@ export const GuestbookWrite: React.FC = () => {
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,13 +37,15 @@ export const GuestbookWrite: React.FC = () => {
         throw new Error(errorData.error || '방명록 저장에 실패했습니다.');
       }
 
-      // Success: Proceed to frame selection
-      closeWindow('write');
-      openWindow('frame');
+      // Success: Proceed to frame selection (창이 이미 닫혔다면 이동하지 않음)
+      if (mountedRef.current) {
+        closeWindow('write');
+        openWindow('frame');
+      }
     } catch (err: any) {
-      setErrorMsg(err.message || '네트워크 오류가 발생했습니다.');
+      if (mountedRef.current) setErrorMsg(err.message || '네트워크 오류가 발생했습니다.');
     } finally {
-      setIsSubmitting(false);
+      if (mountedRef.current) setIsSubmitting(false);
     }
   };
 

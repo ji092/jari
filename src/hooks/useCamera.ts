@@ -43,10 +43,13 @@ export const useCamera = () => {
 
       videoElement.srcObject = mediaStream;
       videoElement.onloadedmetadata = () => {
-        videoElement.play().catch((e) => {
-          console.error("Video play failed:", e);
-        });
-        setIsReady(true);
+        videoElement
+          .play()
+          .then(() => setIsReady(true))
+          .catch((e) => {
+            console.error("Video play failed:", e);
+            setError('카메라 미리보기를 시작할 수 없어요. 화면을 한 번 터치한 뒤 다시 시도해주세요.');
+          });
       };
     } catch (err: any) {
       console.error("Error accessing camera:", err);

@@ -8,7 +8,10 @@ export const Camera: React.FC = () => {
   const { isReady, error, facingMode, startCamera, stopCamera, switchCamera, takeSnapshot } = useCamera();
 
   const videoRef = useRef<HTMLVideoElement>(null);
-  
+  const mountedRef = useRef(true);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
   const [isShooting, setIsShooting] = useState(false);
   const [countdown, setCountdown] = useState<string | null>(null);
   const [isFlashing, setIsFlashing] = useState(false);
@@ -16,10 +19,14 @@ export const Camera: React.FC = () => {
 
   // Initialize camera stream
   useEffect(() => {
+    mountedRef.current = true;
     if (videoRef.current) {
       startCamera(videoRef.current);
     }
     return () => {
+      mountedRef.current = false;
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      audioCtxRef.current?.close();
       stopCamera();
     };
   }, [startCamera, stopCamera]);
@@ -29,8 +36,13 @@ export const Camera: React.FC = () => {
     try {
       const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
       if (!AudioCtx) return;
-      
-      const ctx = new AudioCtx();
+
+      if (!audioCtxRef.current || audioCtxRef.current.state === 'closed') {
+        audioCtxRef.current = new AudioCtx();
+      }
+      const ctx = audioCtxRef.current;
+      if (ctx.state === 'suspended') ctx.resume();
+
       const bufferSize = ctx.sampleRate * 0.15; // 0.15s duration
       const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
       const data = buffer.getChannelData(0);
@@ -67,18 +79,25 @@ export const Camera: React.FC = () => {
       let count = 3;
       setCountdown('3');
       
-      const timer = setInterval(() => {
+      intervalRef.current = setInterval(() => {
+        if (!mountedRef.current) {
+          clearInterval(intervalRef.current!);
+          intervalRef.current = null;
+          resolve('');
+          return;
+        }
         count -= 1;
         if (count === 0) {
           setCountdown('📸');
         } else if (count === -1) {
-          clearInterval(timer);
+          clearInterval(intervalRef.current!);
+          intervalRef.current = null;
           setCountdown(null);
-          
+
           // Flash overlay and sound
           setIsFlashing(true);
           playShutterSound();
-          setTimeout(() => setIsFlashing(false), 200);
+          setTimeout(() => { if (mountedRef.current) setIsFlashing(false); }, 200);
 
           // Take screenshot
           const photoUrl = takeSnapshot(videoRef.current);
