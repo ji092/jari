@@ -64,4 +64,3 @@ bun dev          # bun
 ## 배포
 
 [Vercel](https://vercel.com) 을 통해 배포합니다.  
-main 브랜치에 푸시하면 자동으로 배포됩니다.

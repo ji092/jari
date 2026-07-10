@@ -123,6 +123,7 @@ jari/
 | 2026-07-07 | 치명 버그 5건 수정 | Camera interval 누수, AudioContext 누수, Result 영구 스피너, BGM 자동재생 중단, 방명록 INSERT 동시성 경쟁 | **[완료]** |
 | 2026-07-08 | 중간 버그 3건 + 개선 5건 수정 | API 4xx 검증 강화, Safari 검은 프레임 방지, 창 닫힘 후 화면 전환 방지, BGM 진행바, resetAll 창 초기화, revokeObjectURL 중복, DB 환경변수 검증 | **[완료]** |
 | 2026-07-08 | 빌드 검증 | `npm run build` (Next.js 16.2.9 + TypeScript 검사) 통과 확인 | **[완료]** |
+| 2026-07-09 | 방명록 500 오류 긴급 수정 | 07-07 동시성 수정 때 도입한 UUID 선발급 INSERT가 실제 테이블 스키마(`id` BIGINT AUTO_INCREMENT)와 충돌해 방명록 작성 시 500 발생 → `ResultSetHeader.insertId` 조회 방식으로 교체. 실제 TiDB에 INSERT/SELECT/DELETE 검증 완료. ※ 문서상 스키마(UUID)와 실제 DB 스키마가 다름에 유의 | **[완료]** |
 | 2026-07-08 | 문서 현행화 | 기술 스택의 DB 표기를 PostgreSQL(Supabase) → **TiDB Cloud(mysql2)** 로 교체 기록 반영, Next.js 버전 표기 갱신(14+ → 16), 디렉토리 구조를 실제 `src/` 구조에 맞게 수정 (`lib/db.ts`·`constants/frames.ts` 추가, 미존재 `filters.ts`·`useBgm.ts` 제거) | **[완료]** |
 
 ---
@@ -139,7 +140,7 @@ jari/
 | 2 | `Camera.tsx` | 촬영마다 `new AudioContext()` 생성 후 미해제 → Chrome 한도(~6개) 초과 시 셔터음 무음 | 단일 AudioContext 재사용 (`audioCtxRef`), 언마운트 시 `close()` |
 | 3 | `Result.tsx` | `isGenerating` 초기값 `true` + guard early-return에서 해제 누락 → 영구 로딩 스피너 | 초기값 `false`로 변경, guard 경로에 `setIsGenerating(false)` 추가 |
 | 4 | `BgmPlayer.tsx` | 트랙 자동 전환 시 두 effect의 실행 순서 문제로 이전 src에 `play()` → 거부 → `pause()` → 자동재생 영구 중단 | play/pause 동기화 effect의 deps에서 `trackIndex` 제거 |
-| 5 | `route.ts` | INSERT 후 `ORDER BY created_at DESC LIMIT 1` 재조회 → 동시 요청 시 타인의 행 반환 | `randomUUID()`로 id 선발급 후 해당 id로 INSERT/SELECT. 하단의 `import mysql`도 최상단으로 이동 |
+| 5 | `route.ts` | INSERT 후 `ORDER BY created_at DESC LIMIT 1` 재조회 → 동시 요청 시 타인의 행 반환 | INSERT 결과의 `insertId`로 해당 행을 정확히 조회 (07-09 재수정: 최초 UUID 선발급 방식은 실제 테이블 `id`가 BIGINT AUTO_INCREMENT라 500 오류 유발 → `insertId` 방식으로 교체). 하단의 `import mysql`도 최상단으로 이동 |
 
 **중간 (3건) — 2026-07-08 수정**
 

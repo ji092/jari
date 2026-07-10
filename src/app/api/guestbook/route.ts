@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { randomUUID } from 'crypto';
 import mysql from 'mysql2/promise';
 import { getPool } from '../../../lib/db';
 import { GuestbookEntry } from '../../../types';
@@ -97,11 +96,10 @@ export async function POST(request: Request) {
     const pool = getPool();
 
     // ── Insert ──────────────────────────────────────────────────────────────────
-    const newId = randomUUID();
-    await pool.execute<mysql.ResultSetHeader>(
-      `INSERT INTO guestbook (id, nickname, message, ip_hash)
-       VALUES (?, '익명의 방문자', ?, ?)`,
-      [newId, sanitized, ipHash || null]
+    const [result] = await pool.execute<mysql.ResultSetHeader>(
+      `INSERT INTO guestbook (nickname, message, ip_hash)
+       VALUES ('익명의 방문자', ?, ?)`,
+      [sanitized, ipHash || null]
     );
 
     // Fetch the inserted row by its exact id (avoids race with concurrent inserts)
@@ -109,7 +107,7 @@ export async function POST(request: Request) {
       `SELECT id, nickname, message,
               DATE_FORMAT(created_at, '%Y-%m-%dT%T.000Z') AS createdAt
        FROM guestbook WHERE id = ?`,
-      [newId]
+      [result.insertId]
     );
 
     return NextResponse.json(inserted as GuestbookEntry, { status: 201 });
