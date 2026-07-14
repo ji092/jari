@@ -88,9 +88,11 @@ export const Desktop: React.FC = () => {
               <div className="text-xs font-sans text-black leading-relaxed flex flex-col gap-2 p-1">
                 <div className="font-bold border-b border-gray-400 pb-1 mb-1">🖥️ 시스템 정보</div>
                 <p><strong>프로그램명:</strong> 자리네컷 (Zarinaecut 98)</p>
-                <p><strong>아키텍처:</strong> Next.js 14+ / Client Canvas Engine</p>
-                <p><strong>데이터베이스:</strong> PostgreSQL (In-memory Mock Active)</p>
+                <p><strong>아키텍처:</strong> Next.js 16 · React 19 / Client Canvas Engine</p>
+                <p><strong>데이터베이스:</strong> TiDB Cloud (MySQL 호환) · 방명록 텍스트만 저장</p>
+                <p><strong>상태·이미지:</strong> Zustand · Canvas 2D (필터 8종 + 드로잉)</p>
                 <p><strong>하드웨어 가속:</strong> Web MediaDevices & Web Audio Synthesizer</p>
+                <p><strong>배포:</strong> Vercel (Serverless)</p>
                 <div className="border-t border-gray-400 my-2 pt-2">
                   <p className="text-[#000080] font-bold">✓ 브라우저 적합성 진단:</p>
                   <p>카메라 권한 및 캔버스 합성 API 활성화됨. 최상의 경험을 위해 Chrome 혹은 Safari 브라우저 사용을 권장합니다.</p>

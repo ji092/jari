@@ -128,11 +128,9 @@ const drawVhsTimestamp = (ctx: CanvasRenderingContext2D, width: number, height: 
   const yyyy = now.getFullYear();
   const mm = String(now.getMonth() + 1).padStart(2, '0');
   const dd = String(now.getDate()).padStart(2, '0');
-  const ampm = now.getHours() >= 12 ? 'PM' : 'AM';
-  let hh = now.getHours() % 12;
-  if (hh === 0) hh = 12;
+  const hh = String(now.getHours()).padStart(2, '0');
   const min = String(now.getMinutes()).padStart(2, '0');
-  const stamp = `${yyyy}.${mm}.${dd} ${ampm} ${String(hh).padStart(2, '0')}:${min}`;
+  const stamp = `${yyyy}.${mm}.${dd} ${hh}:${min}`;
 
   const fontSize = Math.max(14, Math.round(width * 0.038));
   const pad = Math.round(width * 0.03);
