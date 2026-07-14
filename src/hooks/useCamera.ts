@@ -26,6 +26,16 @@ export const useCamera = () => {
     setIsReady(false);
     setError(null);
 
+    // HTTPS(또는 localhost)가 아니면 getUserMedia 자체가 동작하지 않으므로 먼저 안내
+    if (typeof window !== 'undefined' && !window.isSecureContext) {
+      setError('카메라는 HTTPS 환경에서만 사용할 수 있어요. 보안(https) 주소로 접속해주세요.');
+      return;
+    }
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setError('이 브라우저에서는 카메라를 사용할 수 없어요. 최신 브라우저로 접속해주세요.');
+      return;
+    }
+
     const constraints: MediaStreamConstraints = {
       video: {
         facingMode: mode,

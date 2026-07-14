@@ -18,7 +18,17 @@ export const GuestbookWrite: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (message.trim().length === 0 || message.length > 200) return;
+
+    // 방명록 미입력/초과 예외: 진입 차단 + 안내 메시지 표시
+    const trimmed = message.trim();
+    if (trimmed.length === 0) {
+      setErrorMsg('한 줄 이상 남겨야 입장권을 받을 수 있어요!');
+      return;
+    }
+    if (message.length > 200) {
+      setErrorMsg('방명록은 200자 이내로 작성해주세요.');
+      return;
+    }
 
     setIsSubmitting(true);
     setErrorMsg('');
@@ -79,7 +89,10 @@ export const GuestbookWrite: React.FC = () => {
         <textarea
           rows={4}
           value={message}
-          onChange={(e) => setMessage(e.target.value.slice(0, 200))}
+          onChange={(e) => {
+            setMessage(e.target.value.slice(0, 200));
+            if (errorMsg) setErrorMsg('');
+          }}
           placeholder="여기에 한 줄을 남겨주시면 촬영 권한을 얻을 수 있습니다! (욕설 및 도배는 제한될 수 있습니다.)"
           className="p-2 text-xs bg-[#ffffff] border-t-2 border-l-2 border-[#808080] border-b-2 border-r-2 border-[#fff] shadow-[-1px_-1px_0px_0px_#000] outline-none text-black resize-none flex-1 min-h-[80px]"
           disabled={isSubmitting}
@@ -105,7 +118,7 @@ export const GuestbookWrite: React.FC = () => {
         <Win98Button
           type="submit"
           variant="primary"
-          disabled={message.trim().length === 0 || isSubmitting}
+          disabled={isSubmitting}
           className="w-[120px]"
         >
           {isSubmitting ? '전송 중...' : '입장권 받기'}

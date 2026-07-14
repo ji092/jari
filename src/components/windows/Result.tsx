@@ -18,10 +18,15 @@ export const Result: React.FC = () => {
   } = useFlowStore();
 
   const [previewUrl, setPreviewUrl] = useState<string>('');
+  const [dataUrl, setDataUrl] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState(false);
   const [blobData, setBlobData] = useState<Blob | null>(null);
 
+  // 카카오톡/인스타 등 인앱 브라우저(WebView)는 blob: 이미지 롱프레스 저장과
+  // <a download>가 막혀 있어, base64 data: URL로 표시해야 저장이 동작한다.
+  const isInAppBrowser = typeof navigator !== 'undefined' &&
+    /KAKAOTALK|kakaotalk|Instagram|FBAN|FBAV|NAVER|Line\//i.test(navigator.userAgent);
   const isKakaoTalk = typeof navigator !== 'undefined' &&
     /KAKAOTALK|kakaotalk/i.test(navigator.userAgent);
 
@@ -53,6 +58,13 @@ export const Result: React.FC = () => {
 
         // 이전 URL 해제는 아래 [previewUrl] cleanup effect가 단독으로 담당
         setPreviewUrl(URL.createObjectURL(blob));
+
+        // 인앱 브라우저 롱프레스 저장을 위한 base64 data URL 생성
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          if (active) setDataUrl(reader.result as string);
+        };
+        reader.readAsDataURL(blob);
       } catch (err) {
         console.error(err);
         if (active) setError(true);
@@ -150,7 +162,7 @@ export const Result: React.FC = () => {
           ) : (
             <div className="flex flex-col items-center justify-center max-w-full overflow-hidden gap-2">
               <img
-                src={previewUrl}
+                src={isInAppBrowser ? (dataUrl || previewUrl) : previewUrl}
                 alt="Zarinaecut composite preview"
                 className={`win-raised border border-white max-h-[480px] sm:max-h-[500px] object-contain ${
                   selectedLayout === '2x2'
@@ -158,7 +170,7 @@ export const Result: React.FC = () => {
                     : 'w-[150px] sm:w-[170px]'
                 }`}
               />
-              {isKakaoTalk && (
+              {isInAppBrowser && (
                 <p className="text-white text-[11px] font-bold text-center bg-black/50 px-3 py-1.5 rounded">
                   📌 이미지를 길게 눌러 저장하세요
                 </p>
@@ -200,9 +212,9 @@ export const Result: React.FC = () => {
 
           {/* Action Operations */}
           <div className="flex flex-col gap-2 mt-auto pt-4 md:pt-0">
-            {isKakaoTalk ? (
+            {isInAppBrowser ? (
               <div className="py-2 px-3 text-[11px] text-center bg-[#fffff0] border border-dotted border-gray-400 leading-relaxed text-gray-700">
-                📌 카카오톡에서는<br />
+                📌 {isKakaoTalk ? '카카오톡' : '인앱 브라우저'}에서는<br />
                 <strong>위 이미지를 길게 눌러</strong><br />
                 저장해 주세요
               </div>

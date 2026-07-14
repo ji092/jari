@@ -142,6 +142,11 @@ export const Camera: React.FC = () => {
     openWindow('frame');
   };
 
+  // 카메라 오류(권한 거부/장치 없음/HTTPS 아님) 발생 시 사용자가 직접 재시도
+  const handleRetry = () => {
+    startCamera(videoRef.current, facingMode);
+  };
+
   return (
     <div className="flex flex-col md:flex-row gap-4 font-sans text-xs text-black select-none">
       {/* Left Area: Camera Viewport */}
@@ -155,24 +160,30 @@ export const Camera: React.FC = () => {
 
         {/* Camera Feed Shell */}
         <div className="relative w-full aspect-[4/3] bg-black win-sunken overflow-hidden flex items-center justify-center">
+          {/* Camera Video tag — 항상 마운트해 두어야 재시도 시 ref로 스트림을 다시 붙일 수 있음 */}
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            style={{ filter: BEAUTY_FILTER }}
+            className={`w-full h-full object-cover transform ${
+              facingMode === 'user' ? 'scale-x-[-1]' : ''
+            } ${error ? 'invisible' : ''}`}
+          />
+
           {error ? (
-            <div className="p-4 text-center text-red-500 font-bold text-xs">
-              ⚠️ {error}
+            /* 카메라 예외 안내 + 다시 시도 */
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-4 text-center bg-black/85">
+              <div className="text-red-400 font-bold text-xs leading-relaxed max-w-[85%]">
+                ⚠️ {error}
+              </div>
+              <Win98Button onClick={handleRetry} className="px-4 py-1 text-xs whitespace-nowrap">
+                🔄 다시 시도
+              </Win98Button>
             </div>
           ) : (
             <>
-              {/* Camera Video tag */}
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                muted
-                style={{ filter: BEAUTY_FILTER }}
-                className={`w-full h-full object-cover transform ${
-                  facingMode === 'user' ? 'scale-x-[-1]' : ''
-                }`}
-              />
-
               {/* Countdown overlays */}
               {countdown && (
                 <div className="absolute inset-0 flex items-center justify-center bg-white/20 select-none pointer-events-none">
