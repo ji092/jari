@@ -47,4 +47,6 @@ next-env.d.ts
 
 # planning documents (do not publish)
 *.docx
+*.md
+!README.md
 
