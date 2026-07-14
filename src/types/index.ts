@@ -2,7 +2,15 @@ export type WindowId = 'write' | 'guestbook' | 'frame' | 'camera' | 'select' | '
 
 export type LayoutType = '2x2' | '1x4';
 
-export type FilterType = 'none' | 'bw' | 'soft';
+export type FilterType =
+  | 'none'
+  | 'bw'
+  | 'soft'
+  | 'sepia'
+  | 'neon'
+  | 'vignette'
+  | 'citypop'
+  | 'vhs';
 
 export interface FrameSlot {
   x: number;

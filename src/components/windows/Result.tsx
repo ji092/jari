@@ -329,6 +329,11 @@ export const Result: React.FC = () => {
     { label: '원본 (Normal)', value: 'none' },
     { label: '흑백 (Retro B&W)', value: 'bw' },
     { label: '뽀샤시 (Soft Soft)', value: 'soft' },
+    { label: '세피아 (Sepia)', value: 'sepia' },
+    { label: '네온 (Neon Duotone)', value: 'neon' },
+    { label: '비네팅 (Vignette)', value: 'vignette' },
+    { label: '시티팝 (City Pop)', value: 'citypop' },
+    { label: 'Y2K 캠코더 (VHS)', value: 'vhs' },
   ];
 
   const layoutLabel = selectedLayout === '2x2' ? '2 × 2 배열' : '1 × 4 세로 배열';
